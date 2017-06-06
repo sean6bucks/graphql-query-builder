@@ -1,9 +1,8 @@
 {
-  "name": "graphql-query-builder",
+  "name": "sk-gql-query-builder",
   "version": "1.0.7",
-  "description": "a simple but powerful graphQL query builder",
-  "main": "index.js",
-  "bin": {},
+  "description": "even simpler es5 friendly GraphQL query builder",
+  "main": "sk-query.js",
   "directories": {
     "example": "example"
   },
@@ -12,7 +11,12 @@
     "chai": "^3.5.0",
     "coveralls": "^2.11.12",
     "istanbul": "^0.4.4",
-    "mocha": "^3.0.1"
+    "mocha": "^3.0.1",
+    "gulp": "latest",
+    "gulp-clean": "latest",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.5.3",
+    "requirejs": "^2.3.3"
   },
   "scripts": {
     "test": "mocha ./test.js",
@@ -20,23 +24,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/codemeasandwich/graphql-query-builder.git"
+    "url": "git://github.com/sean6bucks/sk-gql-query-builder.git"
   },
-  "homepage": "https://github.com/codemeasandwich/graphql-query-builder",
+  "homepage": "https://github.com/sean6bucks/sk-gql-query-builder",
   "keywords": [
     "graphql",
     "query",
     "builder",
     "generator",
-    "orm",
+    "es5",
     "queries"
   ],
   "author": {
-    "name": "Brian Shannon",
-    "url": "https://github.com/codemeasandwich/"
+    "name": "Sean Kiefer",
+    "url": "https://github.com/sean6bucks/"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/codemeasandwich/graphql-query-builder/issues"
+    "url": "https://github.com/sean6bucks/sk-gql-query-builder/issues"
   }
 }
