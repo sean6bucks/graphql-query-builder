@@ -1,50 +1,89 @@
-var Query = require('../');
+'use strict'
 
+require('./stubs/window');
+var Query = require('../sk-query.js');
+
+
+var user = Query({
+  func: "user",
+  values: [ "uri", "width", "height" ]
+});
+
+console.log("Basic Query: ", user+"");
 
 /*
-{
- user( id:3500401 ) {
-    id,
-    nickname : name,
-    isViewerFriend,
-    
-    profilePicture( size:50 ) {
-        uri,
-        width,
-        height
+query={
+ user {
+    uri,
+    width,
+    height
+  }
+}
+*/
+
+var FetchLeeAndSam = Query({
+  func: "FetchLeeAndSam",
+  values: [
+    {
+      alias: 'lee',
+      func: 'user',
+      filters: { id: '1' },
+      values: ['name', 'id' ]
+    },
+    {
+      alias: 'sam',
+      func: 'user',
+      filters: { id: '2' },
+      values: ['name', 'id' ]
+    }
+  ]
+});
+  
+console.log('Nested Functions: ', FetchLeeAndSam+"");
+
+/*
+query={
+  FetchLeeAndSam{
+    lee: user(id:"1"){
+      name
+    },
+    sam: user(id:"2"){
+      name
     }
   }
 }
 */
 
-let profilePicture = new Query("profilePicture",{size : 50});
-    profilePicture.find( "uri", "width", "height");
-let user = new Query("user",{id : 3500401});
-    user.find(["id", {"nickname":"name"}, "isViewerFriend",  {"image":profilePicture}]);
+var reusable = function( model, year ) {
+  return {
+    alias: model,
+    func: 'vehicle',
+    filters: { year: year },
+    values: [
+      "num_produced",
+      "horsepower"
+    ]
+  };
+};
 
-  logger.log("user",user+"");
+var CarCatalog = Query([
+  reusable( 'Mustang', '1964' ),
+  reusable( 'Camero', '1988' )
+]);
+
+console.log( 'Reusable Objects: ', CarCatalog+"" );
+
 /*
-
-query FetchLeeAndSam {
-  lee: user(id: "1") {
-    name
-  }
-  sam: user(id: "2") {
-    name
+query={
+  Mustang:vehicle(year:"1964"){
+    num_produced,
+    horsepower
+  } 
+  Camero:vehicle(year:"1988"){
+    num_produced,
+    horsepower
   }
 }
 */
 
-let FetchLeeAndSam = new Query("FetchLeeAndSam");
 
-let lee = new Query("user",{id : '1'});
-  lee.setAlias('lee');
-  lee.find({name:true});
-  logger.log("lee",lee.toString());
-  
-let sam = new Query("user","sam");
-  sam.filter({id : '2'});
-  sam.find("name");
-  logger.log("sam",sam+"");
-  
- console.log(FetchLeeAndSam.find(lee,sam)+"");
