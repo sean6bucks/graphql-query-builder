@@ -1,46 +1,10 @@
-'use strict'
-
-var app = angular.module('tdQuery', []);
-
-app.factory( 'Query', function() {
+(function(window){
+    'use strict';
 
 
 	//=====================================================
-	//============================ parce properties to find
+	//================= parse data and build nested strings
 	//=====================================================
-
-	// function parceFind( _levelA ) {
-		
-	// //+++++++++++++++++++++++++++++++++++ work over Array
-	// //++++++++++++++++++++++++++++++++++++++++++++++++++++
-		 
-	// 	var propsA = _levelA.map( function( currentValue, index ) {
-			
-	// 		var itemX = _levelA[index];
-			
-	// 		if ( itemX instanceof Query ){
-	// 			return itemX.toString();
-	// 		} else if ( !Array.isArray( itemX ) && 'object' === typeof itemX ) {
-	// 			var propsA = Object.keys( itemX );
-	// 			if ( 1 !== propsA.length ) {
-	// 				throw new RangeError( 'Alias objects should only have one value. was passed: ' + JSON.stringify(itemX) );
-	// 			}
-	// 			var propS = propsA[0];
-	// 			var item = itemX[propS];
-	// 			// contributor: https://github.com/charlierudolph/graphql-query-builder/commit/878328e857e92d140f5ba6f7cfe07837620ec490
-	// 			if ( Array.isArray( item ) ) {
-	// 				return new Query( propS ).find( item )
-	// 			}
-	// 			return propS + ' : ' + item + ' '
-	// 		} else if ( 'string' === typeof itemX ) {
-	// 			return itemX;
-	// 		} else {
-	// 			throw new RangeError( 'cannot handle Find value of ' + itemX );
-	// 		}
-	// 	});
-		
-	// 	return propsA.join(',');
-	// };
 
 	function parseValues( valuesA ) {
 		
@@ -194,54 +158,41 @@ app.factory( 'Query', function() {
 		return queryFuncO;
 	}
 
+	function globalOptions( optionsO ) {
+		var query_options = {
+			prefix: 'query='
+		};
+		if ( optionsO && !Array.isArray( optionsO ) && 'object' === typeof optionsO ) {
+			if ( optionsO.prefix ) {
+				if ( 'string' !== typeof optionsO.prefix )
+					throw new TypeError( '"prefix" option must be a String value' );
+				query_options.prefix = optionsO.prefix;
+			}
+		}
+		console.log( query_options );
+		return query_options;
+	}
+
 	//=====================================================
 	//========================================= Query Class
 	//=====================================================
 
-	function Query( data_obj ) {
+	function Query( data_obj, options ) {
 		
 		if ( undefined === data_obj || 'object' !== typeof data_obj ) {
 			throw new TypeError( 'Query data must be an object or array of query objects' );
 			return;
 		}
+		console.log( options );
+		if ( options )
+			var global_options = globalOptions( options );
+
 		// IF SINGLE OBJECT CREATE SINGLE INDEX ARRAY
-		var $this = this;
+		var $this = Query;
 		if ( !Array.isArray(data_obj) ) data_obj = [data_obj];
 		var queriesA = data_obj;
 		var query_stringsA = [];
 		
-		// _fnNameS, _aliasS_OR_Filter
-		
-		// ======== QUERY BUILDER Query FUNCTIONS > MOVE TO GLOBAL
-
-		// this.filter = function( filtersO ) {
-	 
-		// 	for ( var propS in filtersO ) {
-		// 		if ( 'function' === typeof filtersO[propS] ) {
-		// 			continue;
-		// 		}
-		// 		var val = getGraphQLValue( filtersO[propS] );
-		// 		if ( '{}' === val ) {
-		// 			continue;
-		// 		}
-		// 		$this.headA.push( propS + ':' + val );
-		// 	} 
-		// 	return this;
-		// };
-		// this.setAlias = function( _aliasS ) {
-		// 	this.aliasS = _aliasS;
-		// 	return this;
-		// };
-		// this.find = function( findA ) { // THIS NEED TO BE A 'FUNCTION' to scope 'arguments'
-		// 	if( !findA ){
-		// 		throw new TypeError( 'find value can not be >>falsy<<' );
-		// 	}
-		// 	// if its a string.. it may have other values
-		// 	// else it sould be an Object or Array of maped values
-		// 	this.bodyS = parceFind( ( Array.isArray(findA) ) ? findA : Array.from(arguments) );
-		// 	return this;
-		// };
-
 		// ======= TD QUERY PARSE OBJECT AND BUILD
 		// =======================================
 
@@ -250,25 +201,9 @@ app.factory( 'Query', function() {
 			var query_stringO = queryFunction( query );
 			query_stringsA.push( queryToString( query_stringO ) );
 		});
-
-		return '{' + query_stringsA.join(' ') + '}';
+		return global_options.prefix + '{' + query_stringsA.join(' ') + '}';
 
 	};
 
-	//=====================================================
-	//===================================== Query prototype
-	//=====================================================
-
-	// Query.prototype = {
-		
-	// 	toString: function() {
-	// 		if ( undefined === this.bodyS ) {
-	// 			throw new ReferenceError('return properties are not defined. use the "find" function to defined them');
-	// 		}
-			
-	// 		return ( this.aliasS ? this.aliasS + ':' : '' ) + this.fnNameS + ( 0 < this.headA.length ? '(' + this.headA.join(',') + ')' : '' ) + '{' + this.bodyS + '}';
-	// 	}
-	// };
-
-	return Query;
-});
+	window.Query = Query;
+}(window));
