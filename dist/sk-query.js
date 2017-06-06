@@ -1,5 +1,16 @@
-(function(window){
-    'use strict';
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['exports'], factory);
+    } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
+        // CommonJS
+        factory(exports);
+    } else {
+        // Browser globals
+        factory((root.commonJsStrict = {}));
+    }
+}(this, function (exports) {
+	'use strict';
 
 
 	//=====================================================
@@ -202,5 +213,10 @@
 
 	};
 
-	window.Query = Query;
-}(window));
+	exports.Query = window.Query = Query;
+
+	if (typeof module === 'object' && !!module.exports) {
+		module.exports = Query;
+	}
+	
+}));
