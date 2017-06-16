@@ -38,6 +38,8 @@
 							throw new RangeError( 'Alias objects must have "value" String or "values" Array. was passed: ' + JSON.stringify(itemX) );
 						else if ( itemX.value && 'string' !== typeof itemX.value )
 							throw new RangeError( 'Alias objects should only have one String for "value". was passed: ' + JSON.stringify(itemX) );
+						else if ( checkForInt( itemX.alias ) )
+							throw new RangeError( 'Alias cannot be a stringified Integer: ' + JSON.stringify(itemX));
 						else if ( itemX.values ) {
 							if ( !Array.isArray(itemX.values) && 'string' !== typeof itemX.values )
 								throw new TypeError( '"values" must be an Array with single value or single String value' );
@@ -70,6 +72,12 @@
 		return propsA.join(',');
 	};
 
+	function checkForInt( string ) {
+		if (/^(\-|\+)?([0-9]+|Infinity)$/.test( string ))
+			return true;
+		return false;
+	};
+
 	//=====================================================
 	//=================================== get GraphQL Value
 	//=====================================================
@@ -77,7 +85,8 @@
 
 	function getGraphQLValue( value ) {
 		if ( 'string' === typeof value ) {
-			value = JSON.stringify(value);
+			// IF NOT ENUM ADD QUOTES
+			value = value.indexOf('e$')===0 ? value.substring(2) : JSON.stringify(value);
 		} else if ( Array.isArray(value) ) {
 			value = value.map( function( item ) {
 			return getGraphQLValue( item );
@@ -151,6 +160,9 @@
 		if ( queryO.alias ) {
 			if ( 'string' !== typeof queryO.alias ) 
 				throw new TypeError( 'Alias must be a String value' );
+			if ( checkForInt( queryO.alias ) )
+				throw new TypeError( 'Alias cannot be a stringified Integer');
+
 			queryFuncO.aliasS = queryO.alias;
 		}
 		if ( queryO.filters ) {
@@ -170,7 +182,7 @@
 
 	function globalOptions( optionsO ) {
 		var query_options = {
-			prefix: 'query='
+			prefix: ''
 		};
 		if ( optionsO && !Array.isArray( optionsO ) && 'object' === typeof optionsO ) {
 			if ( optionsO.prefix ) {
@@ -183,7 +195,7 @@
 	}
 
 	//=====================================================
-	//========================================= Query Class
+	//====================================== Query Function
 	//=====================================================
 
 	function Query( data_obj, options ) {
@@ -217,6 +229,20 @@
 
 	if (typeof module === 'object' && !!module.exports) {
 		module.exports = Query;
+	}
+
+	//=====================================================
+	//==================== Create parsable Enumeration vals
+	//=====================================================
+
+	function Enum( key ) {
+		return 'e$' + key;
+	};
+	
+	exports.Enum = window.Enum = Enum;
+
+	if ( typeof module === 'object' && !!module.exports ) {
+		module.exports = Enum;
 	}
 	
 }));
