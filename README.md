@@ -1,6 +1,8 @@
-# graphql-query-builder
+# SK GraphQL Query Builder
 
-a simple but powerful graphQL query builder
+An even simpler, es5 friendly, GraphQL query builder
+
+Forked from https://github.com/codemeasandwich/graphql-query-builder - a simple es6 graphql query builder;
 
 **info:**
 
