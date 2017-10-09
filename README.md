@@ -1,198 +1,161 @@
 # SK GraphQL Query Builder
 
-An even simpler, es5 friendly, GraphQL query builder
+### An even simpler, ES5 friendly, GraphQL query builder
+**No need for multiple functions, commands, or es5 compatible compiling. Just create a single Query with an options object and get a GraphQL ready query string in return.**
 
-Forked from https://github.com/codemeasandwich/graphql-query-builder - a simple es6 graphql query builder;
+*Forked from https://github.com/codemeasandwich/graphql-query-builder - a simple ES6 graphql query builder*
 
 **info:**
 
-[![npm version](https://badge.fury.io/js/graphql-query-builder.svg)](https://badge.fury.io/js/graphql-query-builder)
+[![npm version](https://badge.fury.io/js/sk-query-builder.svg)](https://badge.fury.io/js/sk-query-builder)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
-[![pull requests welcome](https://img.shields.io/badge/Pull%20requests-welcome-pink.svg)](https://github.com/codemeasandwich/graphql-query-builder/pulls)
-[![GitHub stars](https://img.shields.io/github/stars/codemeasandwich/graphql-query-builder.svg?style=social&label=Star)](https://github.com/codemeasandwich/graphql-query-builder)
+[![pull requests welcome](https://img.shields.io/badge/Pull%20requests-welcome-pink.svg)](https://github.com/sean6bucks/sk-gql-query-builder/pulls)
+[![GitHub stars](https://img.shields.io/github/stars/sean6bucks/sk-gql-query-builder.svg?style=social&label=Star)](https://github.com/sean6bucks/sk-gql-query-builder)
 
-
+<!--
 **tests:**
 
 [![build](https://api.travis-ci.org/codemeasandwich/graphql-query-builder.svg)](https://travis-ci.org/codemeasandwich/graphql-query-builder)
-[![Coverage Status](https://coveralls.io/repos/github/codemeasandwich/graphql-query-builder/badge.svg?branch=master)](https://coveralls.io/github/codemeasandwich/graphql-query-builder?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/codemeasandwich/graphql-query-builder/badge.svg?branch=master)](https://coveralls.io/github/codemeasandwich/graphql-query-builder?branch=master) -->
 
-
+<!--
 **quality:**
 
 [![Code Climate](https://codeclimate.com/github/codemeasandwich/graphql-query-builder/badges/gpa.svg)](https://codeclimate.com/github/codemeasandwich/graphql-query-builder)
 [![bitHound Overall Score](https://www.bithound.io/github/codemeasandwich/graphql-query-builder/badges/score.svg)](https://www.bithound.io/github/codemeasandwich/graphql-query-builder)
 [![Issue Count](https://codeclimate.com/github/codemeasandwich/graphql-query-builder/badges/issue_count.svg)](https://codeclimate.com/github/codemeasandwich/graphql-query-builder)
-[![Known Vulnerabilities](https://snyk.io/test/npm/graphql-query-builder/badge.svg)](https://snyk.io/test/npm/graphql-query-builder)
+[![Known Vulnerabilities](https://snyk.io/test/npm/graphql-query-builder/badge.svg)](https://snyk.io/test/npm/graphql-query-builder) -->
 
-### If this was helpful, [★ it on github](https://github.com/codemeasandwich/graphql-query-builder)
-
-*tested on [**NodeJS**](https://nodejs.org) and [**Webpack**](https://webpack.github.io)*
+### If this was helpful, [★ it on github](https://github.com/sean6bucks/sk-gql-query-builder)
 
 
-## [Demo / Sandbox](https://tonicdev.com/codemeasandwich/57a0727c80254315001cb366) :thumbsup:
+## Install
 
-# Install
+`npm install sk-query-builder`
 
-`npm install graphql-query-builder`
-
-# Api
+## Query function:
+Query is available out of the box on the Window object, but can also be required to prevent namespace interference.
 
 ``` js
-const Query = require('graphql-query-builder');
+var Query = require('sk-query-builder');
 ```
 
-### constructor
-query/mutator you wish to use, and an alias or filter arguments.
-
-| Argument (**one** to **two**)  | Description
-|--- |---
-| String | the name of the query function
-| * String / Object | (**optional**) This can be an `alias` or `filter` values 
+### Use:
+Query can be called with a single arguement of either a single query object or an array of query objects and will return a GraphQL formatted string to be attached to query.
 
 ``` js
-let profilePicture = new Query("profilePicture",{size : 50});
-``` 
+var query = Query( [ queryOptions ] );
+```
 
-### setAlias
-set an alias for this result.
+### Constructor / Options:
+Single query object or an array of multiple queries to turn into a GQL query string.
 
-| Argument | Description
-|--- |---
-| String | The alias for this result
+| Key Value | Argument | Description |
+|--- |--- |--- |
+| func: | String | the name of the query function |
+| alias: | String | alias value that result will be returned under |
+| filters: | Object | An object mapping attribute to values |
+| value: | String or Object | Attribute name or nested query you want returned.<br> ***Can be an array of multiple values with the values: key***  |
+| values: | Array | An Array of value items ( String or Obj ) to return multiple values |
 
+##### Example: ( get the sum of users in given timeframe )
 ``` js
-profilePicture.setAlias("MyPic");
+var sumQuery = Query({
+  func: "sum",
+  alias: "total_sum",
+  filters: { from: 0, to: 1501234567890 },
+  value: "count"
+});
 ``` 
-
-### filter
-the parameters to run the query against.
-
-| Argument | Description
-|--- |---
-| Object | An object mapping attribute to values
-
+##### Output: ( returns formatted string )
 ``` js
-profilePicture.filter({ height : 200, width : 200});
-``` 
+"{total_sum: sum(from: 0,to: 1501234567890){count}}"
+```
 
-### find
-outlines the properties you wish to be returned from the query.
+<br>
+## Enum Values:
+This library also creates an Enum function on the Window object that can be used to create enumeration values in the query string.
 
-| Argument (**one** to **many**) | Description
-|--- |---
-| String or Object |  representing each attribute you want Returned
-| ... | *same as above*
+### Use:
+Add Enum values inside query objects buy either the Enum() function with a string to represent the final value or by simply using any string starting with "e$"
 
+``` Enum( 'VALUE' ) == 'e$VALUE' ```
+
+| Argument (one)  | Description |
+|--- |--- |
+| String | the name of the query function |
+
+##### Example: ( get the sum of users in given timeframe )
 ``` js
-    profilePicture.find( { link : "uri"}, "width", "height");
+var eventQuery = Query({
+  alias: 'event_123',
+  func: 'event',
+  filters: {
+    frequency: Enum( 'DAILY' ), // can also be "e$DAILY"
+    value: Enum( 'CLICKS' )
+  },
+  values: [ 'timestamp', 'value' ]
+});
+
+console.log( eventQuery );
+// "{event_123:event(frequency:DAILY,value:CLICKS){timestamp,value}}"
 ``` 
 
-### toString
-return to the formatted query string
+<br>
 
-``` js
-  // A (ES6)
-  `${profilePicture}`;
-  // B
-  profilePicture+'';
-  // C
-  profilePicture.toString();
-``` 
+## Examples:
+#### Nested query values
 
-## run samples
+``` js 
+var FetchLeeAndSam = Query({
+  alias: 'FetchLeeAndSam',
+  func: 'users',
+  values: [
+    {
+      alias: 'lee',
+      func: 'user',
+      filters: { id: '1' },
+      values: ['name', 'id' ]
+    },
+    {
+      alias: 'sam',
+      func: 'user',
+      filters: { id: '2' },
+      values: ['name', 'id' ]
+    }
+  ]
+});
+
+console.log( FetchLeeAndSam );
+//"{FetchLeeAndSam:users{lee:user(id:"1"){name,id},sam:user(id:"2"){name,id}}}"
+```
+
+#### Multiple query array with reusable values
+
+``` js 
+var reusable = function( model, year ) {
+  return {
+    alias: model,
+    func: 'vehicle',
+    filters: { year: year },
+    values: [
+      "num_produced",
+      "horsepower"
+    ]
+  };
+};
+
+var CarCatalog = Query([
+  reusable( 'Mustang', '1964' ),
+  reusable( 'Camero', '1988' )
+]);
+
+console.log( CarCatalog );
+//"{Mustang:vehicle(year:"1964"){num_produced,horsepower} Camero:vehicle(year:"1988"){num_produced,horsepower}}"
+```
+
+### run Examples
 
 ``` bash
 node example/simple.js
-```
-
-# Example
-
-``` js 
-var Query = require('graphql-query-builder');
-
-// example of nesting Querys
-let profilePicture = new Query("profilePicture",{size : 50});
-    profilePicture.find( "uri", "width", "height");
-    
-let user = new Query("user",{id : 123});
-    user.find(["id", {"nickname":"name"}, "isViewerFriend",  {"image":profilePicture}])
-    
-    console.log(user)
-    /*
-     user( id:123 ) {
-    id,
-    nickname : name,
-    isViewerFriend,
-    
-    image : profilePicture( size:50 ) {
-        uri,
-        width,
-        height
-    }
-  }
-    */
-    
-// And another example
-
-let MessageRequest = { type:"chat", message:"yoyo",
-                   user:{
-                            name:"bob",
-                            screen:{
-                                    height:1080,
-                                    width:1920
-                                    }
-                    },
-                    friends:[
-                             {id:1,name:"ann"},
-                             {id:2,name:"tom"}
-                             ]
-                    };
-                    
-let MessageQuery = new Query("Message","myPost");
-    MessageQuery.filter(MessageRequest);
-    MessageQuery.find({ messageId : "id"}, {postedTime : "createTime" });
-    
-    console.log(MessageQuery);
-    
-    /*
-    myPost:Message( type:"chat",
-                    message:"yoyo",
-                    user:{name:"bob",screen:{height:1080,width:1920}},
-                    friends:[{id:1,name:"ann"},{id:2,name:"tom"}])
-        {
-            messageId : id,
-            postedTime : createTime
-        }
-    */
-
-    // Simple nesting
-    
-    let user = new Query("user");
-        user.find([{"profilePicture":["uri", "width", "height"]}])
-    
-    /* 
-    user {
-      profilePicture {
-        uri,
-        width,
-        height
-       }
-     }
-    */ 
-    
-    // Simple nesting with rename
-    
-    let user = new Query("user");
-        user.find([{"image":{"profilePicture":["uri", "width", "height"]}}])
-    
-    /* 
-    user {
-      image : profilePicture {
-        uri,
-        width,
-        height
-       }
-     }
-    */ 
 ```
