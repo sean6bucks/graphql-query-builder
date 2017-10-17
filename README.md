@@ -1,6 +1,6 @@
 # SK GraphQL Query Builder
 
-### An even simpler, ES5 friendly, GraphQL query builder
+### An even simpler Javascript, ES5 friendly, GraphQL query builder
 **No need for multiple functions, commands, or es5 compatible compiling. Just create a single Query with an options object and get a GraphQL ready query string in return.**
 
 *Forked from https://github.com/codemeasandwich/graphql-query-builder - a simple ES6 graphql query builder*
@@ -44,10 +44,10 @@ var Query = require('sk-query-builder');
 Query can be called with a single arguement of either a single query object or an array of query objects and will return a GraphQL formatted string to be attached to query.
 
 ``` js
-var query = Query( [ queryOptions ] );
+var query = Query( query_obj[, options ] );
 ```
 
-### Constructor / Options:
+### Query Constructor:
 Single query object or an array of multiple queries to turn into a GQL query string.
 
 | Key Value | Argument | Description |
@@ -71,6 +71,23 @@ var sumQuery = Query({
 ``` js
 "{total_sum: sum(from: 0,to: 1501234567890){count}}"
 ```
+### Additional Options:
+
+| Key Value | Argument | Description |
+|--- |--- |--- |
+| prefix | String | prefix string before query obj ( i.e. "mutation" ) |
+
+##### Example:
+``` js
+var prefixQuery = Query({
+  func: 'update',
+  filters: { id: 1, value: 3 },
+  value: [ "id", "value" ]
+}, { prefix: 'mutation' );
+
+console.log( prefixQuery );
+// "mutation{update(id:1,value:3){id,value}}"
+``` 
 
 <br>
 ## Enum Values:
