@@ -1,14 +1,14 @@
 (function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['exports'], factory);
-    } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
-        // CommonJS
-        factory(exports);
-    } else {
-        // Browser globals
-        factory((root.commonJsStrict = {}));
-    }
+	if (typeof define === 'function' && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(['exports'], factory);
+	} else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
+		// CommonJS
+		factory(exports);
+	} else {
+		// Browser globals
+		factory((root.commonJsStrict = {}));
+	}
 }(this, function (exports) {
 	'use strict';
 
@@ -17,7 +17,7 @@
 	//================= parse data and build nested strings
 	//=====================================================
 
-	function parseValues( valuesA ) {
+	function parseValues( valuesA, is_mutationB ) {
 		
 		//+++++++++++++++++++++++++++ work over "Values" Array
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -29,7 +29,7 @@
 			if ( !Array.isArray( itemX ) && 'object' === typeof itemX ) {
 				var itemO
 				if ( itemX.func ) {
-					var itemO = queryFunction( itemX );
+					var itemO = queryFunction( itemX, is_mutationB );
 					return queryToString( itemO );
 				} else {
 					if ( itemX.alias ) {
@@ -70,13 +70,13 @@
 		});
 		
 		return propsA.join(',');
-	};
+	}
 
 	function checkForInt( string ) {
 		if (/^(\-|\+)?([0-9]+|Infinity)$/.test( string ))
 			return true;
 		return false;
-	};
+	}
 
 	//=====================================================
 	//=================================== get GraphQL Value
@@ -96,7 +96,7 @@
 			value = objectToString(value);
 		}
 		return value;
-	};
+	}
 
 	function functionFilters( filtersO ) {
 		var filtersA = [];
@@ -114,7 +114,7 @@
 		} 
 
 		return filtersA;
-	};
+	}
 
 	//=====================================================
 	//=================================== string formatting
@@ -133,22 +133,20 @@
 		}
 
 		return '{' + sourceA.join() + '}';
-	};
+	}
 
 
 	function queryToString ( queryO ) {
-		if ( undefined === queryO.bodyS ) {
-			throw new ReferenceError( 'return properties are not defined. use the "values" object to defined them' );
-		}
+		queryO.bodyS = queryO.bodyS ? '{' + queryO.bodyS + '}' : '';
 		
-		return ( queryO.aliasS ? queryO.aliasS + ':' : '' ) + queryO.fnNameS + ( queryO.filtersA && queryO.filtersA.length > 0 ? '(' + queryO.filtersA.join(',') + ')' : '' ) + '{' + queryO.bodyS + '}';
-	};
+		return ( queryO.aliasS ? queryO.aliasS + ':' : '' ) + queryO.fnNameS + ( queryO.filtersA && queryO.filtersA.length > 0 ? '(' + queryO.filtersA.join(',') + ')' : '' ) + queryO.bodyS;
+	}
 
 	//=====================================================
 	//=========================== Create new query function
 	//=====================================================
 
-	function queryFunction( queryO ) {
+	function queryFunction( queryO, is_mutationB ) {
 
 		//+++++++++++++++++++ work over Query object and return GQL structure
 		var queryFuncO = {};
@@ -156,7 +154,7 @@
 		if ( !queryO.func || 'string' !== typeof queryO.func )
 			throw new TypeError( '"name" has been sent as a non-string value' );
 		queryFuncO.fnNameS = queryO.func;
-		
+		// CREATE ALIAS FOR FUNCTION
 		if ( queryO.alias ) {
 			if ( 'string' !== typeof queryO.alias ) 
 				throw new TypeError( 'Alias must be a String value' );
@@ -165,17 +163,21 @@
 
 			queryFuncO.aliasS = queryO.alias;
 		}
+		// ADD VARIABLES FOR FUNCTION
 		if ( queryO.filters ) {
 			if ( 'object' !== typeof queryO.filters || Array.isArray( queryO.filters ) )
 				throw new TypeError( 'Function filters must be passed as object with key values' );
 			queryFuncO.filtersA = functionFilters( queryO.filters );
 		}
-		if ( !queryO.values || !queryO.values.length )
-			throw new TypeError( '"values" can not be >>falsy<< value' );
-		else if ( !Array.isArray( queryO.values ) && 'string' !== queryO.values )
-			throw new TypeError( '"values" must be an Array of values or single String value' );
+		// SET RETURN VALUES FOR QUERY ( IF MUTATION NOT REQUIRED )
+		if ( !is_mutationB || queryO.values ) {
+			if ( !queryO.values || !queryO.values.length )
+				throw new TypeError( '"values" can not be >>falsy<< value' );
+			else if ( !Array.isArray( queryO.values ) && 'string' !== typeof queryO.values )
+				throw new TypeError( '"values" must be an Array of values or single String value' );
+		}
 		// IF ARRAY WORK OVER AND PARSE NESTED VALUES > OTHERWISE JUST RETURN STRING
-		queryFuncO.bodyS = Array.isArray( queryO.values ) ? parseValues( queryO.values ) : queryO.values;
+		queryFuncO.bodyS = Array.isArray( queryO.values ) ? parseValues( queryO.values, is_mutationB ) : queryO.values;
 
 		return queryFuncO;
 	}
@@ -218,16 +220,17 @@
 
 		queriesA.forEach( function( query ) {
 			// START QUERY STRING CREATION OF EACH TOP LEVEL OBJECT
-			var query_stringO = queryFunction( query );
+			var is_mutationB = global_options.prefix && global_options.prefix == 'mutation' ? true : false;
+			var query_stringO = queryFunction( query, is_mutationB );
 			query_stringsA.push( queryToString( query_stringO ) );
 		});
 		return global_options.prefix + '{' + query_stringsA.join(' ') + '}';
 
-	};
+	}
 
 	exports.Query = window.Query = Query;
 
-	if (typeof module === 'object' && !!module.exports) {
+	if ( typeof module === 'object' && !!module.exports ) {
 		module.exports = Query;
 	}
 
@@ -237,7 +240,7 @@
 
 	function Enum( key ) {
 		return 'e$' + key;
-	};
+	}
 	
 	exports.Enum = window.Enum = Enum;
 
